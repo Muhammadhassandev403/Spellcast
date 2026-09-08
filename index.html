@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚔️ Spellcast - Interactive Fantasy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ==========================================
+    HEADER
+    ========================================== -->
+    <header>
+      <h1>⚔️ Spellcast</h1>
+      <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
+        <button id="nav-library" style="background:transparent; border:none; color:#888; font-size:14px; cursor:pointer;">📚 Library</button>
+        <button id="nav-hero" style="background:transparent; border:none; color:#f0c060; font-size:14px; cursor:pointer;">⚔️ My Adventure</button>
+        <div id="user-status">
+          <span id="chapter-counter">Chapters: 0/3 free</span>
+          <span id="paid-badge" style="display:none;">👑 Paid</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ==========================================
+      HERO SCREEN
+      ========================================== -->
+      <section id="hero-screen" class="screen active">
+        <h2>Create Your Legend</h2>
+        <p>Describe your fantasy scenario...</p>
+
+        <!-- Resume Section -->
+        <div id="resume-section" style="display:none;">
+          <p>📖 <strong>You have an ongoing adventure!</strong></p>
+          <p id="resume-info" style="font-size:14px; color:#888;"></p>
+          <button id="resume-btn" style="margin-top:10px; padding:10px 20px; font-size:14px;">⚔️ Resume Your Legend</button>
+          <button id="new-game-btn" style="margin-top:10px; padding:10px 20px; font-size:14px; background:transparent; border:1px solid #3a2f2a;">🔄 Start Fresh</button>
+        </div>
+
+        <textarea id="scenario-input" rows="4" placeholder="I am a elven rogue sneaking into a vampire castle..."></textarea>
+        <button id="start-adventure">⚔️ Begin Adventure</button>
+        <div id="loading" style="display:none;">Generating your world...</div>
+      </section>
+
+      <!-- ==========================================
+      CHAPTER SCREEN
+      ========================================== -->
+      <section id="chapter-screen" class="screen">
+        <div id="chapter-content">
+          <img id="chapter-image" src="" alt="Scene">
+          <h2 id="chapter-title"></h2>
+          <div id="chapter-narrative"></div>
+          <div id="choices-container"></div>
+
+          <!-- Dice Section -->
+          <div id="dice-section" style="display:none;">
+            <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+              <span style="color:#f0c060; font-size:20px;">🎲</span>
+              <select id="dice-type">
+                <option value="d20">D20 (Standard)</option>
+                <option value="d12">D12 (Adventure)</option>
+                <option value="d6">D6 (Quick)</option>
+              </select>
+              <button id="roll-dice-btn" style="background:#7a4a2a; color:#f0e0d0; padding:8px 20px; border:none; border-radius:4px; cursor:pointer;">🎲 Roll!</button>
+              <span id="dice-result" style="color:#f0c060; font-size:24px; font-weight:bold;"></span>
+            </div>
+            <div id="dice-outcome" style="display:none;"></div>
+          </div>
+
+          <!-- Edit & Share Section -->
+          <div id="edit-section">
+            <div class="btn-group">
+              <button id="edit-chapter-btn" style="background:transparent; border:1px solid #7a4a2a; color:#e0d6c8; padding:8px 16px; font-size:14px;">✏️ Edit This Chapter</button>
+              <button id="view-history-btn" style="background:transparent; border:1px solid #2a1f1a; color:#888; padding:8px 16px; font-size:14px;">📜 View Timeline</button>
+              <button id="branches-btn" style="background:transparent; border:1px solid #2a1f1a; color:#888; padding:8px 16px; font-size:14px;">🌿 Branches</button>
+              <button id="share-btn" style="background:transparent; border:1px solid #f0c060; color:#f0c060; padding:8px 16px; font-size:14px;">📤 Share</button>
+            </div>
+
+            <div id="share-result">
+              <p>🔗 Share this link:</p>
+              <input type="text" id="share-link-input" readonly>
+              <button id="copy-share-btn" style="margin-top:8px; padding:8px 16px; font-size:14px;">📋 Copy</button>
+            </div>
+
+            <!-- Export -->
+            <div id="export-section">
+              <button id="export-pdf-btn" style="background:transparent; border:1px solid #7a4a2a; color:#e0d6c8; padding:8px 16px; font-size:14px;">📄 Export PDF</button>
+              <button id="export-epub-btn" style="background:transparent; border:1px solid #7a4a2a; color:#e0d6c8; padding:8px 16px; font-size:14px;">📚 Export EPUB (ZIP)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+      LIBRARY SCREEN
+      ========================================== -->
+      <section id="library-screen" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+          <h2 style="color:#f0c060;">📚 Community Library</h2>
+          <div class="library-filters">
+            <select id="library-genre-filter">
+              <option value="All">All Genres</option>
+            </select>
+            <select id="library-sort">
+              <option value="upvotes">Most Upvoted</option>
+              <option value="newest">Newest</option>
+              <option value="views">Most Viewed</option>
+            </select>
+            <button id="publish-my-story-btn" style="background:#f0c060; color:#0a0a12; padding:8px 16px; border:none; border-radius:4px; font-weight:bold;">📤 Publish Mine</button>
+          </div>
+        </div>
+
+        <div id="library-grid"></div>
+        <div id="library-loading" style="text-align:center; padding:40px; color:#888;">Loading stories...</div>
+        <button id="library-load-more" style="display:none; margin:20px auto; background:transparent; border:1px solid #3a2f2a; color:#888; padding:10px 30px;">Load More</button>
+      </section>
+
+      <!-- ==========================================
+      STORY DETAIL SCREEN
+      ========================================== -->
+      <section id="story-detail-screen" class="screen">
+        <button id="back-to-library" style="background:transparent; border:none; color:#888; font-size:16px; margin-bottom:20px; cursor:pointer;">← Back to Library</button>
+        <div id="story-detail-content"></div>
+      </section>
+
+      <!-- ==========================================
+      SUCCESS SCREEN
+      ========================================== -->
+      <section id="success-screen" class="screen">
+        <h2>🎉 Legend Unlocked!</h2>
+        <p>You now have infinite chapters. Continue your adventure!</p>
+        <button id="continue-after-pay">⚔️ Continue</button>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==========================================
+  EDIT MODAL
+  ========================================== -->
+  <div id="edit-modal">
+    <div class="modal-content">
+      <h2 style="color:#f0c060; margin-bottom:5px;">✏️ Edit Chapter</h2>
+      <p style="color:#888; font-size:14px; margin-bottom:20px;">Rewrite this chapter. Future chapters will be regenerated!</p>
+
+      <label style="display:block; margin-top:15px; color:#aaa; font-size:14px;">Chapter Title</label>
+      <input type="text" id="edit-title" style="width:100%; padding:10px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:4px;">
+
+      <label style="display:block; margin-top:15px; color:#aaa; font-size:14px;">Narrative Text</label>
+      <textarea id="edit-narrative" rows="6" style="width:100%; padding:10px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:4px; font-family:Georgia;"></textarea>
+
+      <label style="display:block; margin-top:15px; color:#aaa; font-size:14px;">Choices (JSON format)</label>
+      <textarea id="edit-choices" rows="4" style="width:100%; padding:10px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:4px; font-family:monospace; font-size:13px;"></textarea>
+
+      <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
+        <button id="save-edit-btn" style="background:#f0c060; color:#0a0a12; padding:12px 30px; font-weight:bold;">💾 Save & Regenerate</button>
+        <button id="cancel-edit-btn" style="background:transparent; border:1px solid #3a2f2a; color:#888; padding:12px 30px;">Cancel</button>
+      </div>
+      <div id="edit-loading" style="display:none; margin-top:15px; color:#f0c060;">⚔️ Regenerating future chapters...</div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+  HISTORY MODAL
+  ========================================== -->
+  <div id="history-modal">
+    <div class="modal-content">
+      <h2 style="color:#f0c060;">📜 Story Timeline</h2>
+      <p style="color:#888; font-size:14px; margin-bottom:20px;">All chapters in the current timeline</p>
+      <div id="history-list" style="max-height:400px; overflow-y:auto;"></div>
+      <h3 style="color:#f0c060; margin-top:30px;">🌿 Branches (Alternate Timelines)</h3>
+      <div id="branches-list"></div>
+      <button id="close-history-btn" style="margin-top:20px; background:transparent; border:1px solid #3a2f2a; color:#888; padding:10px 20px;">Close</button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+  PUBLISH MODAL
+  ========================================== -->
+  <div id="publish-modal">
+    <div class="modal-content">
+      <h2 style="color:#f0c060;">📤 Publish Your Story</h2>
+      <p style="color:#888; font-size:14px; margin-bottom:20px;">Share your adventure with the community!</p>
+
+      <label style="display:block; color:#aaa; font-size:14px; margin-top:10px;">Title</label>
+      <input type="text" id="publish-title" style="width:100%; padding:10px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:4px;">
+
+      <label style="display:block; color:#aaa; font-size:14px; margin-top:10px;">Description</label>
+      <textarea id="publish-description" rows="3" style="width:100%; padding:10px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:4px;"></textarea>
+
+      <label style="display:block; color:#aaa; font-size:14px; margin-top:10px;">Genre</label>
+      <select id="publish-genre" style="width:100%; padding:10px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:4px;">
+        <option value="Fantasy">Fantasy</option>
+        <option value="Sci-Fi">Sci-Fi</option>
+        <option value="Horror">Horror</option>
+        <option value="Romance">Romance</option>
+        <option value="Adventure">Adventure</option>
+        <option value="Mystery">Mystery</option>
+      </select>
+
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button id="confirm-publish-btn" style="background:#f0c060; color:#0a0a12; padding:12px 30px; font-weight:bold;">📖 Publish Now</button>
+        <button id="cancel-publish-btn" style="background:transparent; border:1px solid #3a2f2a; color:#888; padding:12px 30px;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+  PAYWALL OVERLAY
+  ========================================== -->
+  <div id="paywall-overlay">
+    <div class="paywall-box">
+      <button id="close-paywall" style="position:absolute; top:15px; right:20px; background:transparent; border:none; color:#888; font-size:24px; cursor:pointer;">✕</button>
+
+      <h2 style="color:#f0c060; font-size:28px; text-align:center; margin-bottom:5px;">🔮 Unlock Your Legend</h2>
+      <p style="color:#888; text-align:center; font-size:14px; margin-bottom:25px;">Continue your adventure forever</p>
+
+      <!-- Bank Details -->
+      <div class="bank-details">
+        <p style="color:#aaa; font-size:13px; text-align:center; margin-bottom:15px;">💳 Send exactly <strong style="color:#f0c060; font-size:20px;">$1,000</strong> to:</p>
+        <div class="grid">
+          <span class="label">Account Number:</span>
+          <span class="account-number">9123271114</span>
+        </div>
+      </div>
+
+      <!-- Verification Form -->
+      <div style="margin-bottom:20px;">
+        <label style="color:#aaa; font-size:13px; display:block; margin-bottom:5px;">📝 Transaction Reference:</label>
+        <input type="text" id="transaction-ref-input" placeholder="e.g., TRX-2024-12345" style="width:100%; padding:12px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:6px; font-size:15px;">
+
+        <label style="color:#aaa; font-size:13px; display:block; margin-top:10px; margin-bottom:5px;">📧 Your email:</label>
+        <input type="email" id="paywall-email" placeholder="your@email.com" style="width:100%; padding:12px; background:#0a0a12; border:1px solid #2a1f1a; color:#e0d6c8; border-radius:6px; font-size:15px;">
+
+        <button id="verify-payment-btn" style="width:100%; margin-top:15px; background:#f0c060; color:#0a0a12; padding:14px; border:none; border-radius:6px; font-weight:bold; font-size:17px; cursor:pointer;">✅ Verify Payment</button>
+      </div>
+
+      <div id="payment-status" style="display:none;"></div>
+
+      <div style="border-top:1px solid #2a1f1a; padding-top:15px; margin-top:15px; text-align:center;">
+        <button id="restart-from-paywall" style="background:transparent; border:none; color:#666; font-size:13px; cursor:pointer; text-decoration:underline;">🔄 Start a new adventure instead</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

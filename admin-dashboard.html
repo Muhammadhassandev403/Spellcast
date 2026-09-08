@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏰 Spellcast Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #0a0a12;
+      color: #e0d6c8;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ============================================
+       HEADER
+    ============================================ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      border-bottom: 2px solid #f0c060;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #f0c060;
+      font-size: 32px;
+    }
+
+    .header .badge {
+      background: #f0c060;
+      color: #0a0a12;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    /* ============================================
+       STATS
+    ============================================ */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: #1a1512;
+      border: 1px solid #2a1f1a;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #f0c060;
+    }
+
+    .stat-card .label {
+      color: #888;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    /* ============================================
+       TABS
+    ============================================ */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 25px;
+      background: #1a1512;
+      border: 1px solid #2a1f1a;
+      border-radius: 6px;
+      color: #888;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      background: #f0c060;
+      color: #0a0a12;
+      border-color: #f0c060;
+      font-weight: bold;
+    }
+
+    .tab-btn:hover:not(.active) {
+      border-color: #f0c060;
+    }
+
+    /* ============================================
+       PAYMENTS LIST
+    ============================================ */
+    .payments-list {
+      display: none;
+    }
+
+    .payments-list.active {
+      display: block;
+    }
+
+    /* ============================================
+       PAYMENT CARD
+    ============================================ */
+    .payment-card {
+      background: #1a1512;
+      border: 1px solid #2a1f1a;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+      animation: slideIn 0.3s ease;
+    }
+
+    .payment-card:hover {
+      border-color: #3a2f2a;
+    }
+
+    .payment-card.verified {
+      border-color: #51cf66;
+    }
+
+    .payment-card.pending {
+      border-color: #fcc419;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .payment-ref {
+      color: #f0c060;
+      font-weight: bold;
+      font-size: 18px;
+      font-family: monospace;
+    }
+
+    .payment-email {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .payment-user {
+      color: #666;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .payment-date {
+      color: #555;
+      font-size: 12px;
+    }
+
+    /* ============================================
+       STATUS BADGE
+    ============================================ */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-pending {
+      background: #fcc41920;
+      color: #fcc419;
+      border: 1px solid #fcc419;
+    }
+
+    .status-verified {
+      background: #51cf6620;
+      color: #51cf66;
+      border: 1px solid #51cf66;
+    }
+
+    /* ============================================
+       BUTTONS
+    ============================================ */
+    .btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .btn-verify {
+      background: #f0c060;
+      color: #0a0a12;
+      font-weight: bold;
+    }
+
+    .btn-verify:hover {
+      background: #ffd070;
+      transform: scale(1.02);
+    }
+
+    .btn-resend {
+      background: #2a1f1a;
+      color: #888;
+    }
+
+    .btn-resend:hover {
+      background: #3a2f2a;
+      color: #e0d6c8;
+    }
+
+    .btn-delete {
+      background: #6b2a2a;
+      color: #ff6b6b;
+    }
+
+    .btn-delete:hover {
+      background: #8a3a3a;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+      text-align: center;
+      padding: 50px;
+      color: #666;
+      font-size: 18px;
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    /* ============================================
+       LOGIN BOX
+    ============================================ */
+    .login-box {
+      max-width: 400px;
+      margin: 100px auto;
+      background: #1a1512;
+      padding: 40px;
+      border-radius: 12px;
+      border: 2px solid #f0c060;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      color: #f0c060;
+      margin-bottom: 10px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a12;
+      border: 1px solid #2a1f1a;
+      color: #e0d6c8;
+      border-radius: 6px;
+      font-size: 16px;
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .login-box .error {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ============================================
+       TOAST
+    ============================================ */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .toast {
+      padding: 15px 25px;
+      border-radius: 8px;
+      color: #0a0a12;
+      font-weight: bold;
+      margin-bottom: 10px;
+      animation: slideDown 0.5s ease;
+      max-width: 400px;
+    }
+
+    .toast-success {
+      background: #51cf66;
+    }
+
+    .toast-error {
+      background: #ff6b6b;
+    }
+
+    .toast-info {
+      background: #fcc419;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================
+       LIVE INDICATOR
+    ============================================ */
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #51cf66;
+      font-size: 13px;
+      padding: 5px 12px;
+      border: 1px solid #51cf66;
+      border-radius: 20px;
+      background: #51cf6610;
+    }
+
+    .live-indicator .dot {
+      width: 8px;
+      height: 8px;
+      background: #51cf66;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .payment-header {
+        flex-direction: column;
+      }
+
+      .action-buttons {
+        width: 100%;
+      }
+
+      .action-buttons .btn {
+        flex: 1;
+        text-align: center;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <!-- ==========================================
+    LOGIN SCREEN
+    ========================================== -->
+    <div id="login-screen" class="login-box">
+      <h2>🏰 Spellcast Admin</h2>
+      <p style="color: #888; font-size: 14px;">Enter admin password to manage payments</p>
+      <input type="password" id="admin-password" placeholder="Enter admin password" value="Amjadhassan">
+      <button id="login-btn" class="btn btn-verify" style="width:100%; padding:12px; font-size:16px;">🔑 Login</button>
+      <div id="login-error" class="error">❌ Invalid password. Try again.</div>
+    </div>
+
+    <!-- ==========================================
+    DASHBOARD
+    ========================================== -->
+    <div id="dashboard" style="display:none;">
+      <div class="container">
+        <!-- Header -->
+        <div class="header">
+          <div>
+            <h1>🏰 Spellcast Admin</h1>
+            <p style="color: #888; font-size: 14px;">Manage payments and unlock users</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <span class="live-indicator">
+              <span class="dot"></span> Live
+            </span>
+            <span class="badge" id="pending-count">0 Pending</span>
+            <button id="refresh-btn" class="btn btn-resend">🔄 Refresh</button>
+            <button id="logout-btn" class="btn btn-delete">🚪 Logout</button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat-card">
+            <div class="number" id="stat-pending">0</div>
+            <div class="label">⏳ Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="stat-verified">0</div>
+            <div class="label">✅ Verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="stat-total">$0</div>
+            <div class="label">💰 Total Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="stat-users">0</div>
+            <div class="label">👤 Total Users</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="pending">⏳ Pending</button>
+          <button class="tab-btn" data-tab="verified">✅ Verified</button>
+          <button class="tab-btn" data-tab="all">📋 All</button>
+        </div>
+
+        <!-- Pending List -->
+        <div id="pending-list" class="payments-list active">
+          <div id="pending-container">
+            <div class="empty-state">
+              <div class="icon">✅</div>
+              No pending payments. Great job!
+            </div>
+          </div>
+        </div>
+
+        <!-- Verified List -->
+        <div id="verified-list" class="payments-list">
+          <div id="verified-container">
+            <div class="empty-state">
+              <div class="icon">📭</div>
+              No verified payments yet.
+            </div>
+          </div>
+        </div>
+
+        <!-- All List -->
+        <div id="all-list" class="payments-list">
+          <div id="all-container">
+            <div class="empty-state">
+              <div class="icon">📭</div>
+              No payments found.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+
+    const API_URL = 'http://localhost:3000/api';
+    const ADMIN_PASSWORD = 'Amjadhassan';
+    let allPayments = [];
+    let refreshInterval = null;
+
+    // ============================================
+    // LOGIN
+    // ============================================
+
+    document.getElementById('login-btn').addEventListener('click', login);
+    document.getElementById('admin-password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') login();
+    });
+
+    function login() {
+      const password = document.getElementById('admin-password').value;
+      if (password === ADMIN_PASSWORD) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('login-error').style.display = 'none';
+        loadDashboard();
+
+        // Auto-refresh every 10 seconds
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(loadDashboard, 10000);
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'block';
+      document.getElementById('admin-password').value = '';
+      sessionStorage.removeItem('admin_logged_in');
+    });
+
+    // ============================================
+    // LOAD DASHBOARD
+    // ============================================
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`${API_URL}/payment/admin/all?adminKey=${ADMIN_PASSWORD}`);
+        const data = await res.json();
+        allPayments = data || [];
+
+        updateStats();
+        renderPending();
+        renderVerified();
+        renderAll();
+        updateTabVisibility();
+
+        document.getElementById('pending-count').textContent =
+          `${allPayments.filter(p => !p.verified).length} Pending`;
+
+      } catch (err) {
+        console.error('Load error:', err);
+        showToast('❌ Failed to load payments', 'error');
+      }
+    }
+
+    // ============================================
+    // UPDATE STATS
+    // ============================================
+
+    function updateStats() {
+      const pending = allPayments.filter(p => !p.verified);
+      const verified = allPayments.filter(p => p.verified);
+      const totalRevenue = verified.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const uniqueUsers = new Set(allPayments.map(p => p.user_token));
+
+      document.getElementById('stat-pending').textContent = pending.length;
+      document.getElementById('stat-verified').textContent = verified.length;
+      document.getElementById('stat-total').textContent = `$${totalRevenue.toLocaleString()}`;
+      document.getElementById('stat-users').textContent = uniqueUsers.size;
+    }
+
+    // ============================================
+    // RENDER PAYMENTS
+    // ============================================
+
+    function renderPending() {
+      const container = document.getElementById('pending-container');
+      const pending = allPayments.filter(p => !p.verified);
+
+      if (pending.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">✅</div>
+            No pending payments. Great job!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = pending.map(p => createPaymentCard(p, 'pending')).join('');
+    }
+
+    function renderVerified() {
+      const container = document.getElementById('verified-container');
+      const verified = allPayments.filter(p => p.verified);
+
+      if (verified.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            No verified payments yet.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = verified.map(p => createPaymentCard(p, 'verified')).join('');
+    }
+
+    function renderAll() {
+      const container = document.getElementById('all-container');
+
+      if (allPayments.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            No payments found.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = allPayments.map(p =>
+        createPaymentCard(p, p.verified ? 'verified' : 'pending')
+      ).join('');
+    }
+
+    // ============================================
+    // CREATE PAYMENT CARD
+    // ============================================
+
+    function createPaymentCard(payment, status) {
+      const statusClass = status === 'verified' ? 'status-verified' : 'status-pending';
+      const statusText = status === 'verified' ? '✅ Verified' : '⏳ Pending';
+
+      return `
+        <div class="payment-card ${status}" id="payment-${payment.id}">
+          <div class="payment-header">
+            <div>
+              <div class="payment-ref">💰 $${payment.amount || 1000} — ${payment.transaction_ref}</div>
+              <div class="payment-email">📧 ${payment.email || 'No email provided'}</div>
+              <div class="payment-user">🆔 User: ${payment.user_token?.substring(0, 16) || 'Unknown'}...</div>
+              <div class="payment-date">📅 ${new Date(payment.created_at).toLocaleString()}</div>
+              <div style="margin-top:8px;">
+                <span class="status-badge ${statusClass}">${statusText}</span>
+                ${payment.verified_at ? `<span style="color:#555;font-size:11px;margin-left:10px;">Verified: ${new Date(payment.verified_at).toLocaleString()}</span>` : ''}
+              </div>
+            </div>
+            <div class="action-buttons">
+              ${status === 'pending' ? `
+                <button class="btn btn-verify" onclick="verifyPayment(${payment.id})">
+                  ✅ Verify & Unlock
+                </button>
+              ` : `
+                <button class="btn btn-resend" onclick="resendEmail(${payment.id})">
+                  📧 Resend Email
+                </button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // VERIFY PAYMENT
+    // ============================================
+
+    async function verifyPayment(paymentId) {
+      if (!confirm('✅ Verify this payment and unlock the user? They will receive a confirmation email.')) return;
+
+      try {
+        const res = await fetch(`${API_URL}/payment/admin/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentId,
+            adminKey: ADMIN_PASSWORD
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`✅ Payment verified! Email sent.`, 'success');
+          loadDashboard();
+        } else {
+          showToast(`❌ Error: ${data.error || 'Unknown error'}`, 'error');
+        }
+      } catch (err) {
+        showToast(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    // ============================================
+    // RESEND EMAIL
+    // ============================================
+
+    async function resendEmail(paymentId) {
+      if (!confirm('📧 Resend confirmation email to this user?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}/payment/admin/resend-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentId,
+            adminKey: ADMIN_PASSWORD
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`✅ Confirmation email resent!`, 'success');
+        } else {
+          showToast(`❌ Error: ${data.error || 'Unknown error'}`, 'error');
+        }
+      } catch (err) {
+        showToast(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    // ============================================
+    // TABS
+    // ============================================
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const tab = this.dataset.tab;
+        document.querySelectorAll('.payments-list').forEach(el => el.classList.remove('active'));
+
+        if (tab === 'pending') document.getElementById('pending-list').classList.add('active');
+        else if (tab === 'verified') document.getElementById('verified-list').classList.add('active');
+        else if (tab === 'all') document.getElementById('all-list').classList.add('active');
+      });
+    });
+
+    function updateTabVisibility() {
+      const pending = allPayments.filter(p => !p.verified);
+      const verified = allPayments.filter(p => p.verified);
+
+      document.querySelector('[data-tab="pending"]').textContent = `⏳ Pending (${pending.length})`;
+      document.querySelector('[data-tab="verified"]').textContent = `✅ Verified (${verified.length})`;
+      document.querySelector('[data-tab="all"]').textContent = `📋 All (${allPayments.length})`;
+    }
+
+    // ============================================
+    // REFRESH
+    // ============================================
+
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      loadDashboard();
+      showToast('🔄 Dashboard refreshed!', 'info');
+    });
+
+    // ============================================
+    // TOAST
+    // ============================================
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+      }, 4000);
+    }
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'r') {
+        e.preventDefault();
+        loadDashboard();
+        showToast('🔄 Refreshed!', 'info');
+      }
+    });
+
+    // ============================================
+    // AUTO-LOGIN
+    // ============================================
+
+    if (sessionStorage.getItem('admin_logged_in') === 'true') {
+      document.getElementById('admin-password').value = ADMIN_PASSWORD;
+      login();
+    }
+
+    // Override login to save session
+    const originalLogin = login;
+    login = function() {
+      originalLogin();
+      sessionStorage.setItem('admin_logged_in', 'true');
+    };
+  </script>
+</body>
+</html>
